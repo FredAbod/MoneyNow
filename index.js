@@ -17,14 +17,14 @@ const loggerMiddleware = (req, res, next) => {
 app.use(loggerMiddleware);
 const oneDay = 1000*60*60* 24;
 app.use(cookieParser())
-app.use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: true,
-      cookie: { maxAge: oneDay },
-    })
-  );
+// app.use(
+//     session({
+//       secret: process.env.SESSION_SECRET,
+//       resave: false,
+//       saveUninitialized: true,
+//       cookie: { maxAge: oneDay },
+//     })
+//   );
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
