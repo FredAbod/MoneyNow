@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require("./routes/user.routes")
+const groupRouter = require("./routes/group.routes")
 const session = require('cookie-session')
 
 const cookieParser = require('cookie-parser');
@@ -38,6 +39,7 @@ app.get('/', (req, res) => {
   });
   
   app.use('/api', userRoutes);
+  app.use('/group', groupRouter)
 // 404 error
   app.use((req, res, next) => {
     const error = new Error(`Not found - ${req.originalUrl}`);

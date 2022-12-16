@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-mongoose.set("strictQuery", true);
+// mongoose.set("strictQuery", true);
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,10 +36,7 @@ const userSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: [true, "Please enter an email"],
       unique: true,
-      trim: true,
-      minlength: 3,
     },
     isDeleted: {
       type: Boolean,

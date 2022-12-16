@@ -2,7 +2,7 @@ const User = require("../models/user.model");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const { jwtSign } = require("../helper/jwt");
-
+const otpGenerator = require("otp-generator");
 const { Services } = require("../services/services");
 const { passwordHash, passwordCompare } = require("../helper/hashing");
 const { ifError } = require("assert");
@@ -69,7 +69,7 @@ exports.otp = async (req, res, next) => {
       return res.status(400).json({ message: "no user with this otp" });
     }
   } catch (error) {
-    next(error);
+    return res.status(500).json({ error, message: error.message });
   }
 };
 
@@ -90,7 +90,7 @@ exports.nameSignUp = async (req, res, next) => {
     );
     return res
       .status(200)
-      .json({ message: "user updated successfully", updateUser });
+      .json({ message: "user updated successfully", updateUser});
   } catch (error) {
     next(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -240,6 +240,36 @@ exports.resetPassword = async (req, res, next) => {
       .status(200)
       .json({ message: "user updated successfully", updatedUser });
   } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+exports.gen_ref_ID = async (req, res, next) =>{
+  const id = req.query.id;
+  try {
+    const checkExistingUser = await User.findById(id);
+    if(!checkExistingUser){
+      return res.status(404).json({message: "User not found"});
+    }
+ referralId = otpGenerator.generate(6, {
+  upperCaseAlphabets: false,
+  specialChars: false,
+});
+
+const updatedUser = await User.findByIdAndUpdate(
+  id,
+  {
+    referralId
+  },
+  {
+    new: true,
+  }
+);
+return res
+.status(200)
+.json({ message: "referralId generated", updatedUser});
+  } catch (error) {
+    next(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
