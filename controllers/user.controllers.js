@@ -5,7 +5,8 @@ const { jwtSign } = require("../helper/jwt");
 const otpGenerator = require("otp-generator");
 const { Services } = require("../services/services");
 const { passwordHash, passwordCompare } = require("../helper/hashing");
-const { ifError } = require("assert");
+// const cron = require("node-cron");
+// const saltRounds = 10;
 
 exports.SignUp = async (req, res, next) => {
   const { email } = req.body;
@@ -18,12 +19,14 @@ exports.SignUp = async (req, res, next) => {
     if (checkExistingUser) {
       return res.status(400).json({ message: "User already exists." }); // this condition needs to be stopped if error is thrown
     }
+    const otp= Math.floor(1000 + Math.random() * 9000)
+    // const salt = await bcrypt.genSalt(saltRounds);
+    // const hash = await bcrypt.hash(otp, salt);
     const newUser = new User({
       email: email,
-      otp: Math.floor(1000 + Math.random() * 9000),
+      otp,
     });
     const saveNewUser = await newUser.save();
-    // const token = Math.floor(1000 + Math.random() * 9000);
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -48,6 +51,7 @@ exports.SignUp = async (req, res, next) => {
       }
       console.log("Email Sent to " + info.accepted);
     });
+
     return res.status(200).json({
       message: "You have signed up successfully, Please input your otp",
       saveNewUser,
@@ -75,10 +79,9 @@ exports.otp = async (req, res, next) => {
 
 exports.nameSignUp = async (req, res, next) => {
   try {
-    const id = req.query.id;
     const { firstName, lastName, referralId } = req.body;
     const updateUser = await User.findByIdAndUpdate(
-      id,
+      req.params.id,
       {
         firstName,
         lastName,
@@ -98,14 +101,13 @@ exports.nameSignUp = async (req, res, next) => {
 };
 exports.passwordSignUp = async (req, res, next) => {
   try {
-    const id = req.query.id;
     const { password, confirmPassword } = req.body;
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Password doesn't match" });
     }
     const hashedPassword = await passwordHash(password);
     const updateUser = await User.findByIdAndUpdate(
-      id,
+      req.params.id,
       {
         password: hashedPassword,
       },
@@ -123,10 +125,9 @@ exports.passwordSignUp = async (req, res, next) => {
 
 exports.bvnSignUp = async (req, res, next) => {
   try {
-    const id = req.query.id;
     const { bvn } = req.body;
     const updateUser = await User.findByIdAndUpdate(
-      id,
+      req.params.id,
       {
         bvn,
       },
@@ -220,7 +221,7 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-  const id = req.query.id;
+
   const {password, confirmPassword} = req.body;
   try {
     if (password !== confirmPassword) {
@@ -228,7 +229,7 @@ exports.resetPassword = async (req, res, next) => {
     }
     const hashedPassword = await passwordHash(password);
     const updatedUser = await User.findByIdAndUpdate(
-      id,
+      req.params.id,
       {
         password: hashedPassword,
       },
@@ -245,7 +246,6 @@ exports.resetPassword = async (req, res, next) => {
 }
 
 exports.gen_ref_ID = async (req, res, next) =>{
-  const id = req.query.id;
   try {
     const checkExistingUser = await User.findById(id);
     if(!checkExistingUser){
@@ -257,7 +257,7 @@ exports.gen_ref_ID = async (req, res, next) =>{
 });
 
 const updatedUser = await User.findByIdAndUpdate(
-  id,
+  req.params.id,
   {
     referralId
   },
@@ -268,6 +268,51 @@ const updatedUser = await User.findByIdAndUpdate(
 return res
 .status(200)
 .json({ message: "referralId generated", updatedUser});
+  } catch (error) {
+    next(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+exports.resend_code= async (req, res, next) =>{
+  try {
+    // const otp= Math.floor(1000 + Math.random() * 9000)
+    const updateOtp = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        otp:  Math.floor(1000 + Math.random() * 9000)
+      },
+      {
+        new: true,
+      }
+    )
+    
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER_MAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+    const mailOptions = {
+      from: "boluwatifefred@gmail.com",
+      to: updateOtp.email,
+      subject: ` You have signed up succesfully On MoneyNow!!!`,
+      html: `
+      <p>You need to activate your account with the Otp below</p>
+      <p>Here is your token ${updateOtp.otp}</p>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      }
+      console.log("Email Sent to " + info.accepted);
+    });
+    return res
+    .status(200)
+    .json({ message: "Otp is resent to your code", updateOtp});
   } catch (error) {
     next(error);
     return res.status(500).json({ error: "Internal Server Error" });

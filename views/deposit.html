@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Payment</title>
+</head>
+<body>
+    <form action="/transaction/deposit" method="post">
+        groupName: <input type="text" name="groupName" id="groupName"><br><br>
+        amount: <input type="number" name="amount" id="amount"><br><br>
+        email: <input type="email" name="email" id="email"><br><br>
+        summary: <input type="text" name="summary" id="summary"><br><br>
+        <input type="submit" value="Send">
+    </form>
+</body>
+</html>

@@ -5,12 +5,12 @@ exports.create_group = async (req, res, next) => {
     try {
         const id = req.query.id;
 
-        const { group }= req.body;
+        const { group, groupName }= req.body;
         const checkExistingUser = await User.findById(id);
         if(!checkExistingUser){
           return res.status(404).json({message: "User not found"});
         }
-        const newGroup = new Group({group})
+        const newGroup = new Group({group, groupName});
         const saveNewGroup = await newGroup.save();
         return res.status(200).json({
             message: "Group Created successfully",

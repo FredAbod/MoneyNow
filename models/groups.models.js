@@ -10,6 +10,10 @@ const groupSchema = new mongoose.Schema(
     type: String,
     enum: ["Silver", "Gold", "Platinum"]
    },
+   groupName: {
+    type: String,
+    unique: true,
+   },
     group_balance: {
         type: mongoose.Decimal128,
         required: true,
