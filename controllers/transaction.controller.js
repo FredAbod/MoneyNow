@@ -180,4 +180,65 @@ const flw = new Flutterwave(
       });
     }
   };
+
+  exports.withdraw = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const {
+        first_name,
+        last_name,
+        amount,
+        account_number,
+        narration,
+        mobile_number,
+        currency,
+        email,
+      } = req.body;
+      const tx_ref = v4();
+  
+      const details = {
+        account_bank: "044",
+        account_number: account_number,
+        amount: amount,
+        narration: narration,
+        currency: currency,
+        reference: tx_ref,
+        callback_url:
+        "https://www.flutterwave.com/ng/",
+        //  "http://localhost:5000/deposit",
+        // "https://webhook.site/b3e505b0-fe02-430e-a538-22bbbce8ce0d",
+        debit_currency: "NGN",
+        meta: [
+          {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            beneficiary_country: "NG",
+            mobile_number: mobile_number,
+            sender: "Bookie",
+            merchant_name: "Spotify",
+          },
+        ],
+      };
+      flw.Transfer.initiate(details).then(console.log).catch(console.log);
+      await session.commitTransaction();
+      session.endSession();
+  
+      return res.status(201).json({
+        status: true,
+        message: "withdraw successful",
+      });
+    } catch (err) {
+      console.log(err);
+      // console.log(err);
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(500).json({
+        status: false,
+        message: `Unable to find perform withdrawal. Please try again. \n Error: ${err}`,
+      });
+    }
+  };
+  
   

@@ -79,12 +79,13 @@ exports.otp = async (req, res, next) => {
 
 exports.nameSignUp = async (req, res, next) => {
   try {
-    const { firstName, lastName, referralId } = req.body;
+    const { firstName, lastName, referralId, phoneNumber } = req.body;
     const updateUser = await User.findByIdAndUpdate(
       req.params.id,
       {
         firstName,
         lastName,
+        phoneNumber,
         referralId,
       },
       {
@@ -246,6 +247,7 @@ exports.resetPassword = async (req, res, next) => {
 }
 
 exports.gen_ref_ID = async (req, res, next) =>{
+  id= req.params.id;
   try {
     const checkExistingUser = await User.findById(id);
     if(!checkExistingUser){
@@ -269,7 +271,6 @@ return res
 .status(200)
 .json({ message: "referralId generated", updatedUser});
   } catch (error) {
-    next(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }

@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    phoneNumber: {
+      type: String,
+      unique: true,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
