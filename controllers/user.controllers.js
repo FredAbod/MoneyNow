@@ -81,7 +81,7 @@ exports.nameSignUp = async (req, res, next) => {
   try {
     const { firstName, lastName, referralId, phoneNumber } = req.body;
     const updateUser = await User.findByIdAndUpdate(
-      req.params.id,
+      req.query.id,
       {
         firstName,
         lastName,
@@ -108,7 +108,7 @@ exports.passwordSignUp = async (req, res, next) => {
     }
     const hashedPassword = await passwordHash(password);
     const updateUser = await User.findByIdAndUpdate(
-      req.params.id,
+      req.query.id,
       {
         password: hashedPassword,
       },
@@ -128,7 +128,7 @@ exports.bvnSignUp = async (req, res, next) => {
   try {
     const { bvn } = req.body;
     const updateUser = await User.findByIdAndUpdate(
-      req.params.id,
+      req.query.id,
       {
         bvn,
       },
@@ -230,7 +230,7 @@ exports.resetPassword = async (req, res, next) => {
     }
     const hashedPassword = await passwordHash(password);
     const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
+      req.query.id,
       {
         password: hashedPassword,
       },

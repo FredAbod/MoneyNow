@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
+    userBalance: {
+      type: mongoose.Decimal128,
+      required: true,
+      default: 0.00
+  },
     bvn: {
       type: String,
       trim: true,

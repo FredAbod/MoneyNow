@@ -1,31 +1,32 @@
-const Group = require('../models/groups.models')
-const Transactions = require("../models/transactions");
+// const Group = require('../models/groups.models')
+const User = require("../models/user.model");
 
+const Transactions = require("../models/transactions");
 
 exports.creditAccount = async ({
   tx_ref,
   amount,
   currency,
-  redirect_url,
+  // redirect_url,
   purpose,
   trnxSummary,
   email,
- groupName,
+  firstName,
   session,
   summary,
 }) => {
-  const group = await Group.findOne({ groupName });
-  if (!group) {
+  const user = await User.findOne({ firstName });
+  if (!user) {
     return {
       status: false,
       statusCode: 404,
-      message: `The ${groupName} doesn\'t exist, redirect_url ${redirect_url}`,
+      message: `The ${firstName} doesn\'t exist`,
     };
   }
 
-  const updatedGroup = await Group.findOneAndUpdate(
-    { groupName },
-    { $inc: { group_balance: amount } },
+  const updatedUser = await User.findOneAndUpdate(
+    { firstName },
+    { $inc: { userBalance: amount } },
     { session }
   );
 
@@ -38,14 +39,14 @@ exports.creditAccount = async ({
         amount,
         currency,
         email,
-    groupName,
-    balanceBefore: Number(group.group_balance),
-    balanceAfter: Number(group.group_balance) + Number(amount),
+        firstName,
+        balanceBefore: Number(User.userBalance),
+        balanceAfter: Number(User.userBalance) + Number(amount),
         summary,
         trnxSummary,
       },
     ],
-    { session }
+    // { session }
   );
 
   console.log(`Credit successful`);
@@ -53,40 +54,39 @@ exports.creditAccount = async ({
     status: true,
     statusCode: 201,
     message: "Credit successful",
-    data: { updatedGroup, transaction },
+    data: { updatedUser, transaction },
   };
 };
 
 exports.debitAccount = async ({
   amount,
-  username,
   purpose,
   reference,
-groupName,
+  firstName,
   summary,
   trnxSummary,
   session,
 }) => {
-  const group = await Group.findOne({ groupName });
-  if (!group) {
+  const user = await User.findOne({ firstName });
+  if (!user) {
     return {
       status: false,
       statusCode: 404,
-      message: `The ${groupName} doesn\'t exist`,
+      message: `The ${firstName} doesn\'t exist`,
     };
   }
 
-  if (Number(group.group_balance) < amount) {
+  if (Number(User.userBalance) < amount) {
     return {
       status: false,
       statusCode: 400,
-      message: `User ${groupName} has insufficient balance`,
+      message: `User ${firstName} has insufficient balance`,
     };
   }
 
-  const updatedgroup = await Groups.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     { username },
-    { $inc: { group_balance: -amount } },
+    { $inc: { Balance: -amount } },
     { session }
   );
   const transaction = await Transactions.create(
@@ -95,11 +95,11 @@ groupName,
         trnxType: "DR",
         purpose,
         amount,
-        username,
+        firstName,
         reference,
         groupUsername,
-        balanceBefore: Number(group.group_balance),
-        balanceAfter: Number(group.group_balance) - Number(amount),
+        balanceBefore: Number(User.userBalance),
+        balanceAfter: Number(User.userBalance) - Number(amount),
         summary,
         trnxSummary,
       },
@@ -112,6 +112,6 @@ groupName,
     status: true,
     statusCode: 201,
     message: "Debit successful",
-    data: { updatedgroup, transaction },
+    data: { updatedUser, transaction },
   };
 };

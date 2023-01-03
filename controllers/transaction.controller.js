@@ -3,6 +3,7 @@ const express = require('express');
 const Transactions = require('../models/transactions')
 const nodemailer = require("nodemailer");
 const Group = require('../models/groups.models')
+const User = require('../models/user.model')
 const mongoose = require('mongoose');
 const app = express();
 const { v4 } = require("uuid");
@@ -18,13 +19,13 @@ const flw = new Flutterwave(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const { groupName, amount, phonenumber, email, currency, summary } = req.body;
+      const { firstName, amount, phonenumber, email, currency, summary } = req.body;
       const tx_ref = v4();
-      if (!groupName && !amount && !summary) {
+      if (!firstName && !amount && !summary) {
         return res.status(400).json({
           status: false,
           message:
-            "Please provide the following details: groupName, amount, summary",
+            "Please provide the following details: firstName, amount, summary",
         });
       }
   
@@ -44,7 +45,7 @@ const flw = new Flutterwave(
           customer: {
             email,
             phonenumber,
-            groupName,
+            firstName,
           },
           
           customizations: {
@@ -85,7 +86,7 @@ const flw = new Flutterwave(
       }
       const payload = req.body;
       // It's a good idea to log all received events.
-      console.log(payload);
+      // console.log(payload);
   
       await session.commitTransaction();
       session.endSession();
@@ -93,6 +94,8 @@ const flw = new Flutterwave(
       return res.status(201).json({
         status: true,
         message: "savings successful",
+        response,
+        // payload,
       });
     } catch (err) {
       console.log(err);
@@ -110,31 +113,32 @@ const flw = new Flutterwave(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const { groupName, amount, summary,email } = req.body;
+      const { firstName, amount, summary,email } = req.body;
       const tx_ref = v4();
-      if (!groupName && !amount && !summary) {
+      if (!firstName && !amount && !summary) {
         return res.status(400).json({
           status: false,
           message:
-            "Please provide the following details: groupName, amount, summary",
+            "Please provide the following details: firstName, amount, summary",
         });
       }
        
       const depositTransfer = await Promise.all([
       creditAccount({
         amount,
-        username: groupName,
+        firstName,
         purpose: "deposit",
         email,
         tx_ref,
         summary,
-        trnxSummary: `TRFR To: ${groupName}. TRNX REF:${tx_ref} `,
+        trnxSummary: `TRFR To: ${firstName}. TRNX REF:${tx_ref} `,
         session,
       })
     ]);
       const failedTxns = depositTransfer.filter(
         (result) => result.status !== true
       );
+      console.log(failedTxns)
       if (failedTxns.length) {
         const errors = failedTxns.map((a) => a.message);
         await session.abortTransaction();
@@ -154,7 +158,7 @@ const flw = new Flutterwave(
       from: "boluwatifefred@gmail.com",
       to: `${email}`,
       subject: "Your Payment Reciept",
-     html: `<h1>hello ${groupName}</h1>
+     html: `<h1>hello ${firstName}</h1>
      <p>You've Just Saved  NGN${amount}</p>`,
       
   }
@@ -187,7 +191,6 @@ const flw = new Flutterwave(
     try {
       const {
         first_name,
-        last_name,
         amount,
         account_number,
         narration,

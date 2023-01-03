@@ -17,7 +17,7 @@ const transactionSchema = new mongoose.Schema(
       required: true,
       default: 0.0,
     },
-    groupName: {
+    firstName: {
       type: String,
       ref: "User",
     },

@@ -6,15 +6,20 @@ const groupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     },
-   group: {
-    type: String,
-    enum: ["Silver", "Gold", "Platinum"]
-   },
    groupName: {
     type: String,
     unique: true,
+    required: true,
    },
-    group_balance: {
+   savingsTarget: {
+    type: String,
+    required: true,
+   },
+   savingsDuration: {
+    type: String,
+    required: true,
+   },
+    groupBalance: {
         type: mongoose.Decimal128,
         required: true,
         default: 0.00
@@ -22,6 +27,10 @@ const groupSchema = new mongoose.Schema(
     participants: {
         type: Number,
         default: 0
+    },
+    max_no_of_participants: {
+        type: Number,
+        required: true,
     }
 
   },
