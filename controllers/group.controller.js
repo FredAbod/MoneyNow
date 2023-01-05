@@ -39,10 +39,10 @@ exports.add_participant = async (req, res, next) => {
       return res.status(404).json({ message: "Group not found" });
     }
     let amount = 1;
-    // let participants = checkExistingGroup.participants++
     const updateGroup = await Group.findByIdAndUpdate(
       id,
       {
+        $push: { participantsId: req.user.id},
         participants: Number(checkExistingGroup.participants) + Number(amount),
       },
       { new: true }

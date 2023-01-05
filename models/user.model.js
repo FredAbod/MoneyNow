@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-// mongoose.set("strictQuery", true);
+mongoose.set("strictQuery", true);
 
 const userSchema = new mongoose.Schema(
   {
@@ -66,7 +66,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    versionKey: false,
+    // versionKey: false,
   }
 );
 

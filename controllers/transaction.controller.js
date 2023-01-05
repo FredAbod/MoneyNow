@@ -113,7 +113,7 @@ const flw = new Flutterwave(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const { firstName, amount, summary,email } = req.body;
+      const { firstName,groupName, amount, summary,email } = req.body;
       const tx_ref = v4();
       if (!firstName && !amount && !summary) {
         return res.status(400).json({
@@ -127,6 +127,7 @@ const flw = new Flutterwave(
       creditAccount({
         amount,
         firstName,
+        groupName,
         purpose: "deposit",
         email,
         tx_ref,
@@ -201,9 +202,10 @@ const flw = new Flutterwave(
       const tx_ref = v4();
   
       const details = {
-        account_bank: "044",
+        account_name: "011",
         account_number: account_number,
         amount: amount,
+        bank_name: bank_name,
         narration: narration,
         currency: currency,
         reference: tx_ref,
@@ -215,7 +217,6 @@ const flw = new Flutterwave(
         meta: [
           {
             first_name: first_name,
-            last_name: last_name,
             email: email,
             beneficiary_country: "NG",
             mobile_number: mobile_number,

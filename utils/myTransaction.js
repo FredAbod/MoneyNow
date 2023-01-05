@@ -1,4 +1,4 @@
-// const Group = require('../models/groups.models')
+const Group = require('../models/groups.models')
 const User = require("../models/user.model");
 
 const Transactions = require("../models/transactions");
@@ -12,6 +12,7 @@ exports.creditAccount = async ({
   trnxSummary,
   email,
   firstName,
+  groupName,
   session,
   summary,
 }) => {
@@ -27,6 +28,11 @@ exports.creditAccount = async ({
   const updatedUser = await User.findOneAndUpdate(
     { firstName },
     { $inc: { userBalance: amount } },
+    { session }
+  );
+  const updatedGroup = await Group.findOneAndUpdate(
+    { groupName },
+    { $inc: { groupBalance: amount } },
     { session }
   );
 
@@ -54,7 +60,7 @@ exports.creditAccount = async ({
     status: true,
     statusCode: 201,
     message: "Credit successful",
-    data: { updatedUser, transaction },
+    data: { updatedUser, transaction, updatedGroup },
   };
 };
 
@@ -85,8 +91,13 @@ exports.debitAccount = async ({
   }
 
   const updatedUser = await User.findOneAndUpdate(
-    { username },
-    { $inc: { Balance: -amount } },
+    { firstname },
+    { $inc: { userBalance: -amount } },
+    { session }
+  );
+  const updatedGroup = await Group.findOneAndUpdate(
+    { groupName },
+    { $inc: { groupBalance: -amount } },
     { session }
   );
   const transaction = await Transactions.create(
@@ -97,7 +108,7 @@ exports.debitAccount = async ({
         amount,
         firstName,
         reference,
-        groupUsername,
+        groupName,
         balanceBefore: Number(User.userBalance),
         balanceAfter: Number(User.userBalance) - Number(amount),
         summary,
@@ -112,6 +123,6 @@ exports.debitAccount = async ({
     status: true,
     statusCode: 201,
     message: "Debit successful",
-    data: { updatedUser, transaction },
+    data: { updatedUser, transaction, updatedGroup },
   };
 };

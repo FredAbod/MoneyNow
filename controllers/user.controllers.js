@@ -1,4 +1,6 @@
 const User = require("../models/user.model");
+const {parse, stringify, toJSON, fromJSON} = require('flatted');
+
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const { jwtSign } = require("../helper/jwt");
@@ -168,6 +170,7 @@ exports.userLogin = async (req, res, next) => {
     const dataInfo = {
       status: "success",
       message: "User Logged in successful",
+      user,
       access_token: token,
     };
     return res.status(200).json(dataInfo);
@@ -177,17 +180,23 @@ exports.userLogin = async (req, res, next) => {
 };
 
 
-exports.forgotPassword = (req, res) => {
-  const { email } = req.body;
 
-  const user = User.findOne({ email });
-  if (!user) {
-    return res
-      .status(400)
-      .json({ error: error.message, message: "user does not exist" });
-  }
+
+exports.forgotPassword = async(req, res) => {
+  const { email } = req.body
+  // const id = req.query.id
+
+  const newUser = await User.findOne({ email: email });
+if(!newUser){
+  return res.status(400).json({ message: "user does not exist"
+});
+}
+
 
   let otp = Math.floor(1000 + Math.random() * 9000)
+newUser.otp = otp;
+await newUser.save();
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -212,13 +221,9 @@ exports.forgotPassword = (req, res) => {
     }
     console.log("Email Sent to " + info.accepted);
   });
-  return user.updateOne({  otp: otp}, (err) => {
-    if (err) {
-      return res.status(400).json({ error: "reset password error" });
-    } else {
-      return res.status(200).json({ message: "Input your otp on the next screen" });
-    }
-  });
+  return res.status(200).json({
+    message: "Otp sent"
+  })
 };
 
 exports.resetPassword = async (req, res, next) => {
@@ -319,3 +324,20 @@ exports.resend_code= async (req, res, next) =>{
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+// get user by id
+exports.userName= async (req, res, next) => {
+  try {
+    id = req.query.id;
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(400).json({ message: "User not found" });
+      return;
+    }
+const fullName = user.firstName + " " + user.lastName;
+    res.status(200).json({fullName});
+  } catch (error) {
+    next(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+

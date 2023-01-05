@@ -28,6 +28,9 @@ const groupSchema = new mongoose.Schema(
         type: Number,
         default: 0
     },
+    participantsId: {
+        type: [String]
+    },
     max_no_of_participants: {
         type: Number,
         required: true,
