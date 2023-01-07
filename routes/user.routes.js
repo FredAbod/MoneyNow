@@ -1,5 +1,5 @@
-const { SignUp, otp, nameSignUp, passwordSignUp, bvnSignUp, userLogin, forgotPassword, resetPassword, gen_ref_ID, resend_code, userName, one } = require('../controllers/user.controllers');
-const isAuthenticated = require("../middleware/auth");
+const { SignUp, otp, nameSignUp, passwordSignUp, bvnSignUp, userLogin, forgotPassword, resetPassword, gen_ref_ID, resend_code, userName, one, userBalance } = require('../controllers/user.controllers');
+const { isAuthenticated, validateAdmin } = require('../middleware/auth');
 
 const router = require('express').Router();
 
@@ -11,6 +11,7 @@ router.put('/forgotpassword/user', forgotPassword)
 router.put('/nameSignUp', nameSignUp)
 router.put('/bvnSignUp', bvnSignUp)
 router.get('/username', userName)
+router.get('/userbalance',isAuthenticated, userBalance)
 router.put('/passwordSignUp', passwordSignUp)
 router.put('/resetpassword', resetPassword)
 router.put('/resetotp/:id', resend_code)

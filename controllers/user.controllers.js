@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const {parse, stringify, toJSON, fromJSON} = require('flatted');
+const { parse, stringify, toJSON, fromJSON } = require("flatted");
 
 const nodemailer = require("nodemailer");
 const fs = require("fs");
@@ -21,7 +21,7 @@ exports.SignUp = async (req, res, next) => {
     if (checkExistingUser) {
       return res.status(400).json({ message: "User already exists." }); // this condition needs to be stopped if error is thrown
     }
-    const otp= Math.floor(1000 + Math.random() * 9000)
+    const otp = Math.floor(1000 + Math.random() * 9000);
     // const salt = await bcrypt.genSalt(saltRounds);
     // const hash = await bcrypt.hash(otp, salt);
     const newUser = new User({
@@ -96,7 +96,7 @@ exports.nameSignUp = async (req, res, next) => {
     );
     return res
       .status(200)
-      .json({ message: "user updated successfully", updateUser});
+      .json({ message: "user updated successfully", updateUser });
   } catch (error) {
     next(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -147,12 +147,11 @@ exports.bvnSignUp = async (req, res, next) => {
   }
 };
 
-
 exports.userLogin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    if(!email && !password) {
-     return res.status(400).json({ message: "email and password required" });
+    if (!email && !password) {
+      return res.status(400).json({ message: "email and password required" });
     }
     const user = await Services.findUserByEmail({ email });
     const isMatch = await passwordCompare(password, user.password);
@@ -179,23 +178,17 @@ exports.userLogin = async (req, res, next) => {
   }
 };
 
-
-
-
-exports.forgotPassword = async(req, res) => {
-  const { email } = req.body
-  // const id = req.query.id
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
 
   const newUser = await User.findOne({ email: email });
-if(!newUser){
-  return res.status(400).json({ message: "user does not exist"
-});
-}
+  if (!newUser) {
+    return res.status(400).json({ message: "user does not exist" });
+  }
 
-
-  let otp = Math.floor(1000 + Math.random() * 9000)
-newUser.otp = otp;
-await newUser.save();
+  let otp = Math.floor(1000 + Math.random() * 9000);
+  newUser.otp = otp;
+  await newUser.save();
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -222,13 +215,12 @@ await newUser.save();
     console.log("Email Sent to " + info.accepted);
   });
   return res.status(200).json({
-    message: "Otp sent"
-  })
+    message: "Otp sent",
+  });
 };
 
 exports.resetPassword = async (req, res, next) => {
-
-  const {password, confirmPassword} = req.body;
+  const { password, confirmPassword } = req.body;
   try {
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Password doesn't match" });
@@ -249,50 +241,50 @@ exports.resetPassword = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 
-exports.gen_ref_ID = async (req, res, next) =>{
-  id= req.params.id;
+exports.gen_ref_ID = async (req, res, next) => {
+  id = req.params.id;
   try {
     const checkExistingUser = await User.findById(id);
-    if(!checkExistingUser){
-      return res.status(404).json({message: "User not found"});
+    if (!checkExistingUser) {
+      return res.status(404).json({ message: "User not found" });
     }
- referralId = otpGenerator.generate(6, {
-  upperCaseAlphabets: false,
-  specialChars: false,
-});
+    referralId = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
 
-const updatedUser = await User.findByIdAndUpdate(
-  req.params.id,
-  {
-    referralId
-  },
-  {
-    new: true,
-  }
-);
-return res
-.status(200)
-.json({ message: "referralId generated", updatedUser});
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        referralId,
+      },
+      {
+        new: true,
+      }
+    );
+    return res
+      .status(200)
+      .json({ message: "referralId generated", updatedUser });
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 
-exports.resend_code= async (req, res, next) =>{
+exports.resend_code = async (req, res, next) => {
   try {
     // const otp= Math.floor(1000 + Math.random() * 9000)
     const updateOtp = await User.findByIdAndUpdate(
       req.params.id,
       {
-        otp:  Math.floor(1000 + Math.random() * 9000)
+        otp: Math.floor(1000 + Math.random() * 9000),
       },
       {
         new: true,
       }
-    )
-    
+    );
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -317,15 +309,15 @@ exports.resend_code= async (req, res, next) =>{
       console.log("Email Sent to " + info.accepted);
     });
     return res
-    .status(200)
-    .json({ message: "Otp is resent to your code", updateOtp});
+      .status(200)
+      .json({ message: "Otp is resent to your code", updateOtp });
   } catch (error) {
     next(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 // get user by id
-exports.userName= async (req, res, next) => {
+exports.userName = async (req, res, next) => {
   try {
     id = req.query.id;
     const user = await User.findById(id);
@@ -333,11 +325,21 @@ exports.userName= async (req, res, next) => {
       res.status(400).json({ message: "User not found" });
       return;
     }
-const fullName = user.firstName + " " + user.lastName;
-    res.status(200).json({fullName});
+    const fullName = user.firstName + " " + user.lastName;
+    res.status(200).json({ fullName });
   } catch (error) {
     next(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 
+exports.userBalance = async (req, res) => {
+  id = req.user.id
+  try {
+    const newUser = await User.findById(id);
+    const balance = newUser.userBalance;
+    return res.status(200).json({ balance });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};

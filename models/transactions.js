@@ -21,28 +21,23 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       ref: "User",
     },
+    userId: {
+      type: String,
+  },
     balanceBefore: {
       type: mongoose.Decimal128,
-      required: true,
+      // required: true,
     },
     balanceAfter: {
       type: mongoose.Decimal128,
-      required: true,
+      // required: true,
     },
     email: { type: String, required: true },
     tx_ref: { type: String, required: true},
     currency: { type: String },
-    // reference: { type: String, required: true },
-    balanceBefore: {
-      type: mongoose.Decimal128,
-      required: true,
-    },
-    balanceAfter: {
-      type: mongoose.Decimal128,
-      required: true,
-    },
-    summary: { type: String, required: true },
-    trnxSummary: { type: String, required: true },
+    transactionStatus: { type: String },
+    summary: { type: String },
+    trnxSummary: { type: String },
   },
   { timestamps: true }
 );

@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema(
     referralId: {
       type: String,
       trim: true,
-      unique: true,
     },
     userBalance: {
       type: mongoose.Decimal128,
