@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     userBalance: {
-      type: mongoose.Decimal128,
+      type: Number,
       required: true,
       default: 0.00
   },

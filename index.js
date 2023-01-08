@@ -56,9 +56,10 @@ app.use("/transaction", transactionRouter);
 // });
 app.get("/home", async (req, res) => {
   if (req.query.status === "successful") {
-    const transactionDetails = await Transactions.find({
+    const transactionDetails = await Transactions.findOne({
       tx_ref: req.query.tx_ref,
     });
+
     const response = await flw.Transaction.verify({
       id: req.query.transaction_id,
     });
@@ -67,20 +68,25 @@ app.get("/home", async (req, res) => {
       response.data.currency === "NGN"
       ) {
         // Success! Confirm the customer's payment
-   
-    // const newUser = await User.findOne({firstName: transactionDetails.firstName})
-    // if(!newUser){
-    //   return res.status(400).json({ message: "user does not exist"
-    // });
-    // }
-    //  newUser.userBalance = {$inc: {userBalance: transactionDetails.amount}}
-    //  await newUser.save();
+        
+        const newUser = await User.findOne({firstName: transactionDetails.firstName})
+        if(!newUser){
+          return res.status(400).json({ message: "user does not exist"
+        });
+      }
+
+      let newBalance = newUser.userBalance + +transactionDetails.amount;
+      newUser.userBalance = newBalance;
+      // newUser.save();
+    //  newUser.userBalance = {$inc: {userBalance: +transactionDetails.amount}}
+     await newUser.save();
       res.sendFile(path.join(__dirname, "views/home.html"));
       console.log("payment successful");
       // console.log(newUser);
     } else {
       // Inform the customer their payment was unsuccessful
       console.log("Payment unsuccessful", "Not enough money on card");
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 });

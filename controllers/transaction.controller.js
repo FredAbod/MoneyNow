@@ -40,7 +40,7 @@ exports.save = async (req, res, next) => {
           tx_ref,
           amount: amount,
           currency: currency,
-          redirect_url: "http://localhost:5500/home",
+          redirect_url: "https://moneynow.onrender.com/home",
           //  "https://webhook.site/b74df5b5-7abb-47f4-8843-f5f07b4babcd",
           // "http://localhost:5500/deposit",
 
