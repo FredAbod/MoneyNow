@@ -26,8 +26,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
       unique: true,
-      maxlength: 11,
-      minlength:11,
     },
     otp: {
       type: String,
