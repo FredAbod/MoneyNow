@@ -185,7 +185,7 @@ exports.forgotPassword = async (req, res) => {
   if (!newUser) {
     return res.status(400).json({ message: "user does not exist" });
   }
-
+  console.log(newUser);
   let otp = Math.floor(1000 + Math.random() * 9000);
   newUser.otp = otp;
   await newUser.save();
